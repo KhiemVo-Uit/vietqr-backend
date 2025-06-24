@@ -6,7 +6,7 @@ const username = 'customer-vietgiaiph-user25325';
 const password = 'Y3VzdG9tZXItdmlldGdpYWlwaC11c2VyMjUzMjU=';
 
 // Route để lấy token
-router.post('/token', async (req, res) => {
+router.post('/token_generate', async (req, res) => {
   try {
     const authString = `${username}:${password}`;
     const encodedAuth = Buffer.from(authString).toString('base64');

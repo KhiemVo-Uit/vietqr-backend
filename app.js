@@ -11,8 +11,8 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-app.use('/vqr/api', authRoutes);
-app.use('/bank/api', transactionRoutes);
+app.use('/bank/api', authRoutes);  // Token generate endpoint
+app.use('/vqr/bank/api/test', transactionRoutes);  // Callback endpoint
 app.use('/api', qrRoutes);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

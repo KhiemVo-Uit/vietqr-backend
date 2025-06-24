@@ -17,7 +17,7 @@ const router = express.Router();
 const SECRET_KEY = process.env.SECRET_KEY;
 const BEARER_PREFIX = 'Bearer ';
 
-router.post('/transaction-sync', (req, res) => {
+router.post('/transaction-callback', (req, res) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith(BEARER_PREFIX)) {
     return res.status(401).json(new ErrorResponse(true, "INVALID_AUTH_HEADER", "Authorization header is missing or invalid", null));
