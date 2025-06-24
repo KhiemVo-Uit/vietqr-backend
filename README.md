@@ -100,13 +100,13 @@ npm run dashboard
 
 #### Webhook Callback
 
-- `POST https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback` - Receive VietQR callbacks
+- `POST https://vietqr-backend.onrender.com/vqr/api/transaction-callback` - Receive VietQR callbacks
 
 ### 🏠 Local Development Endpoints
 
 - `POST http://localhost:3000/vqr/api/token_generate` - Get access token
 - `POST http://localhost:3000/api/create` - Create QR code
-- `POST http://localhost:3000/vqr/api/test/transaction-callback` - Webhook callback
+- `POST http://localhost:3000/vqr/api/transaction-callback` - Webhook callback
 
 ## 🚀 PRODUCTION TESTING
 
@@ -158,7 +158,7 @@ npm run dashboard
   "transType": "C",
   "orderId": "VietQR",
   "qrType": "0",
-  "webhookUrl": "https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback"
+  "webhookUrl": "https://vietqr-backend.onrender.com/vqr/api/transaction-callback"
 }
 ```
 
@@ -167,7 +167,7 @@ npm run dashboard
 **Request Setup:**
 
 - **Method**: `POST`
-- **URL**: `https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback`
+- **URL**: `https://vietqr-backend.onrender.com/vqr/api/transaction-callback`
 - **Headers**:
   ```
   Content-Type: application/json
@@ -208,14 +208,14 @@ curl -X POST https://vietqr-backend.onrender.com/api/create \
     "transType": "C",
     "orderId": "VietQR",
     "qrType": "0",
-    "webhookUrl": "https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback"
+    "webhookUrl": "https://vietqr-backend.onrender.com/vqr/api/transaction-callback"
   }'
 ```
 
 #### 3. Test Webhook Callback (Manual)
 
 ```bash
-curl -X POST https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback \
+curl -X POST https://vietqr-backend.onrender.com/vqr/api/transaction-callback \
   -H "Content-Type: application/json" \
   -d '{
     "orderId": "test-order-123",
@@ -309,9 +309,9 @@ npm run test:vietqr   # VietQR API testing
 ### URL Format
 
 ```
-Local:      http://localhost:3000/vqr/api/test/transaction-callback
-Ngrok:      https://xxx.ngrok-free.app/vqr/api/test/transaction-callback
-Production: https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback
+Local:      http://localhost:3000/vqr/api/transaction-callback
+Ngrok:      https://xxx.ngrok-free.app/vqr/api/transaction-callback
+Production: https://vietqr-backend.onrender.com/vqr/api/transaction-callback
 ```
 
 ## 📊 MONITORING & LOGS
@@ -346,7 +346,7 @@ npm run dashboard
 - Token: `POST /vqr/api/token_generate`
 - QR Create: `POST /api/create`
 - QR Image: `POST /api/create-image`
-- Webhook: `POST /vqr/api/test/transaction-callback`
+- Webhook: `POST /vqr/api/transaction-callback`
 
 ### Environment Variables
 
@@ -355,7 +355,7 @@ NODE_ENV=production
 PORT=3000
 VIETQR_CLIENT_ID=your_client_id
 VIETQR_API_KEY=your_api_key
-WEBHOOK_URL=https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback
+WEBHOOK_URL=https://vietqr-backend.onrender.com/vqr/api/transaction-callback
 ```
 
 ### Process Management
@@ -518,7 +518,7 @@ https://vietqr-backend.onrender.com
 ```
 1. GET TOKEN:    POST /vqr/api/token_generate
 2. CREATE QR:    POST /api/create
-3. CALLBACK:     POST /vqr/api/test/transaction-callback
+3. CALLBACK:     POST /vqr/api/transaction-callback
 ```
 
 ### 📋 Test Commands
@@ -533,7 +533,7 @@ curl -X POST https://vietqr-backend.onrender.com/api/create \
   -d '{"bankAccount":"0397733970","userBankName":"Nguyen Phuoc Dai","bankCode":"MB","amount":"3000","content":"VQR thanh toan test","transType":"C","orderId":"VietQR","qrType":"0"}'
 
 # 3. Test Callback
-curl -X POST https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback \
+curl -X POST https://vietqr-backend.onrender.com/vqr/api/transaction-callback \
   -H "Content-Type: application/json" \
   -d '{"orderId":"test-123","amount":50000,"status":"success"}'
 ```
