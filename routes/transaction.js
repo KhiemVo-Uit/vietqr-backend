@@ -6,12 +6,6 @@ const {
   TransactionResponseObject,
   TransactionCallback
 } = require('../models/responses');
-const {
-  sendTelegramMessage,
-  sendEmailNotification,
-  playNotificationSound,
-  writeTransactionLog
-} = require('../notification-service');
 
 const router = express.Router();
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -23,76 +17,63 @@ router.post('/transaction-callback', (req, res) => {
     return res.status(401).json(new ErrorResponse(true, "INVALID_AUTH_HEADER", "Authorization header is missing or invalid", null));
   }
 
-  const token = authHeader.substring(BEARER_PREFIX.length).trim();
+  const token = authHeader.substring(BEARER_PREFIX.length);
 
   try {
-    // Thử verify với SECRET_KEY local trước (cho test)
-    let decoded;
-    try {
-      decoded = jwt.verify(token, SECRET_KEY);
-    } catch (localError) {
-      // Nếu không thành công, có thể là token từ VietQR API (cần decode khác)
-      // Tạm thời skip verify cho demo
-      console.log('⚠️ Token không verify được với local secret, tiếp tục xử lý...');
-      decoded = jwt.decode(token); // Decode mà không verify
-      
-      if (!decoded) {
-        throw new Error('Invalid token format');
-      }
-    }
+    const decoded = jwt.verify(token, SECRET_KEY);
+    console.log('✅ JWT Token verified:', decoded);
+  } catch (err) {
+    console.error('❌ JWT verification failed:', err.message);
+    return res.status(401).json(new ErrorResponse(true, "INVALID_TOKEN", "Invalid or expired token", null));
+  }
 
-    const body = req.body;
-    const transaction = new TransactionCallback(
-      body.transactionid, body.transactiontime, body.referencenumber,
-      body.amount, body.content, body.bankaccount, body.orderId,
-      body.sign, body.terminalCode, body.urlLink, body.serviceCode, body.subTerminalCode
-    );    const refTransactionId = "REF" + Date.now();
-    
-    // 🎉 THÔNG BÁO THANH TOÁN THÀNH CÔNG
-    console.log('\n� ===== THÔNG BÁO THANH TOÁN THÀNH CÔNG =====');
-    console.log('� Có khách hàng vừa thanh toán!');
-    console.log('⏰ Thời gian:', new Date(body.transactiontime * 1000).toLocaleString('vi-VN'));
-    console.log('� Số tiền:', Number(body.amount).toLocaleString('vi-VN'), 'VNĐ');
+  const body = req.body;
+  console.log('\n🎉 WEBHOOK NHẬN ĐƯỢC THANH TOÁN!');
+  console.log('===============================================');
+  console.log('📋 Dữ liệu nhận được:', JSON.stringify(body, null, 2));
+
+  const refTransactionId = Date.now().toString();
+  const transaction = new TransactionCallback(
+    body.banknumber || '',
+    body.bankaccount || '',
+    body.amount || 0,
+    body.content || '',
+    body.transactionid || '',
+    body.orderId || ''
+  );
+
+  try {
+    console.log('\n💰 CHI TIẾT THANH TOÁN:');
+    console.log('💵 Số tiền:', body.amount, 'VNĐ');
+    console.log('🏦 Ngân hàng:', body.banknumber);
     console.log('💳 Tài khoản nhận:', body.bankaccount);
     console.log('🆔 Mã giao dịch:', body.transactionid);
-    console.log('� Nội dung:', body.content);
+    console.log('📝 Nội dung:', body.content);
     console.log('🏪 Mã đơn hàng:', body.orderId || 'Không có');
     console.log('🔗 Reference ID:', refTransactionId);
     console.log('===============================================');
-    
-    // Gửi thông báo
-    sendNotifications(transaction, refTransactionId);
-    
-    // TODO: Lưu vào database nếu cần
-    // await saveTransactionToDatabase(transaction, refTransactionId);
-    
+
+    // Ghi log transaction đơn giản
+    logTransaction(transaction, refTransactionId);
+
     return res.status(200).json(new SuccessResponse(false, null, "Transaction processed successfully", new TransactionResponseObject(refTransactionId)));
 
   } catch (err) {
-    return res.status(401).json(new ErrorResponse(true, "INVALID_TOKEN", "Invalid or expired token", null));
+    console.error('❌ Error processing transaction:', err.message);
+    return res.status(500).json(new ErrorResponse(true, "PROCESSING_ERROR", "Error processing transaction", null));
   }
 });
 
-// Function gửi thông báo khi có thanh toán thành công
-async function sendNotifications(transaction, refId) {
+// Function ghi log khi có thanh toán thành công
+async function logTransaction(transaction, refId) {
   try {
-    console.log('\n📨 ĐANG GỬI THÔNG BÁO...');
-    
-    // � Phát âm thanh ngay lập tức
-    playNotificationSound();
-    
-    // � Ghi log chi tiết
-    writeTransactionLog(transaction, refId);
-    
-    // � Gửi email (async)
-    sendEmailNotification(transaction, refId);
-      // 💬 Gửi Telegram (async) - tự động kiểm tra cấu hình
-    await sendTelegramMessage(transaction, refId);
-    
-    console.log('✅ Đã kích hoạt tất cả thông báo!\n');
+    console.log('\n📨 TRANSACTION RECEIVED...');
+    console.log('Transaction data:', JSON.stringify(transaction, null, 2));
+    console.log('Reference ID:', refId);
+    console.log('✅ Transaction logged successfully!\n');
     
   } catch (error) {
-    console.error('❌ Lỗi khi gửi thông báo:', error.message);
+    console.error('❌ Lỗi khi log transaction:', error.message);
   }
 }
 
