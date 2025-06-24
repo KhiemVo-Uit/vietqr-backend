@@ -8,7 +8,7 @@ async function testProduction() {
     
     try {        // Test 1: Health check
         console.log('1️⃣ Testing token endpoint...');
-        const healthResponse = await axios.post(`${BASE_URL}/bank/api/token_generate`);
+        const healthResponse = await axios.post(`${BASE_URL}/vqr/bank/api/token_generate`);
         console.log('✅ Health check:', healthResponse.status);
           // Test 2: Webhook endpoint
         console.log('\n2️⃣ Testing webhook endpoint...');

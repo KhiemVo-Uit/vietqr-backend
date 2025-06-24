@@ -6,12 +6,11 @@ async function testNewEndpoints() {
     
     const BASE_URL = 'https://vietqr-backend.onrender.com';
     
-    try {
-        // Test 1: Token generation endpoint mới
+    try {        // Test 1: Token generation endpoint mới
         console.log('1️⃣ Testing new token endpoint...');
-        console.log(`GET ${BASE_URL}/bank/api/token_generate`);
+        console.log(`POST ${BASE_URL}/vqr/bank/api/token_generate`);
         
-        const tokenResponse = await axios.get(`${BASE_URL}/bank/api/token_generate`);
+        const tokenResponse = await axios.post(`${BASE_URL}/vqr/bank/api/token_generate`);
         console.log('✅ Token endpoint:', tokenResponse.status);
         console.log('📋 Response:', tokenResponse.data);
         
@@ -29,7 +28,7 @@ async function testNewEndpoints() {
         
         console.log('\n🎉 NEW ENDPOINTS WORKING!');
         console.log('==========================');
-        console.log('✅ Token API:', `${BASE_URL}/bank/api/token_generate`);
+        console.log('✅ Token API:', `${BASE_URL}/vqr/bank/api/token_generate`);
         console.log('✅ Callback API:', `${BASE_URL}/vqr/bank/api/test/transaction-callback`);
         
         console.log('\n📋 READY FOR VIETQR REGISTRATION:');
