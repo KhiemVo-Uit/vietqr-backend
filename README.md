@@ -86,17 +86,144 @@ npm run dashboard
 
 ## 🔧 API ENDPOINTS
 
-### Authentication
+### 🌐 Production Endpoints (Render)
 
-- `GET /api/token` - Get access token
+#### Authentication
 
-### QR Generation
+- `POST https://vietqr-backend.onrender.com/vqr/api/token_generate` - Get access token
 
-- `POST /api/create` - Create QR code with webhook support
+#### QR Generation
 
-### Webhook Callback
+- `POST https://vietqr-backend.onrender.com/api/create` - Create QR code (JSON)
+- `POST https://vietqr-backend.onrender.com/api/create-image` - Create QR code image
+- `GET https://vietqr-backend.onrender.com/api/token` - Get token with detailed info
 
-- `POST /bank/api/transaction-sync` - Receive VietQR callbacks
+#### Webhook Callback
+
+- `POST https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback` - Receive VietQR callbacks
+
+### 🏠 Local Development Endpoints
+
+- `POST http://localhost:3000/vqr/api/token_generate` - Get access token
+- `POST http://localhost:3000/api/create` - Create QR code
+- `POST http://localhost:3000/vqr/api/test/transaction-callback` - Webhook callback
+
+## 🚀 PRODUCTION TESTING
+
+### 📮 POSTMAN TESTING GUIDE
+
+#### **1. Lấy Access Token với Postman**
+
+**Request Setup:**
+
+- **Method**: `POST`
+- **URL**: `https://vietqr-backend.onrender.com/vqr/api/token_generate`
+- **Headers**:
+  ```
+  Content-Type: application/json
+  ```
+- **Body**: `{}` (empty JSON hoặc không cần)
+
+**Expected Response:**
+
+```json
+{
+  "success": true,
+  "message": "Token generated successfully",
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+#### **2. Tạo QR Code với Postman**
+
+**Request Setup:**
+
+- **Method**: `POST`
+- **URL**: `https://vietqr-backend.onrender.com/api/create`
+- **Headers**:
+  ```
+  Content-Type: application/json
+  ```
+- **Body** (raw JSON):
+
+```json
+{
+  "bankAccount": "0397733970",
+  "userBankName": "Nguyen Phuoc Dai",
+  "bankCode": "MB",
+  "amount": "3000",
+  "content": "VQR thanh toan test",
+  "transType": "C",
+  "orderId": "VietQR",
+  "qrType": "0",
+  "webhookUrl": "https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback"
+}
+```
+
+#### **3. Test Webhook Callback với Postman**
+
+**Request Setup:**
+
+- **Method**: `POST`
+- **URL**: `https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback`
+- **Headers**:
+  ```
+  Content-Type: application/json
+  ```
+- **Body** (raw JSON):
+
+```json
+{
+  "orderId": "postman-test-123",
+  "amount": 50000,
+  "transactionId": "txn-456",
+  "status": "success",
+  "bankCode": "MB",
+  "content": "Test payment"
+}
+```
+
+### 💡 Test với cURL (Alternative)
+
+#### 1. Lấy Access Token
+
+```bash
+curl -X POST https://vietqr-backend.onrender.com/vqr/api/token_generate \
+  -H "Content-Type: application/json"
+```
+
+#### 2. Tạo QR Code
+
+```bash
+curl -X POST https://vietqr-backend.onrender.com/api/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bankAccount": "0397733970",
+    "userBankName": "Nguyen Phuoc Dai",
+    "bankCode": "MB",
+    "amount": "3000",
+    "content": "VQR thanh toan test",
+    "transType": "C",
+    "orderId": "VietQR",
+    "qrType": "0",
+    "webhookUrl": "https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback"
+  }'
+```
+
+#### 3. Test Webhook Callback (Manual)
+
+```bash
+curl -X POST https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback \
+  -H "Content-Type: application/json" \
+  -d '{
+    "orderId": "test-order-123",
+    "amount": 3000,
+    "transactionId": "test-txn-456",
+    "status": "success"
+  }'
+```
 
 ## 🧪 TESTING WORKFLOW
 
@@ -182,8 +309,9 @@ npm run test:vietqr   # VietQR API testing
 ### URL Format
 
 ```
-Local:  http://localhost:3000/bank/api/transaction-sync
-Ngrok:  https://xxx.ngrok-free.app/bank/api/transaction-sync
+Local:      http://localhost:3000/vqr/api/test/transaction-callback
+Ngrok:      https://xxx.ngrok-free.app/vqr/api/test/transaction-callback
+Production: https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback
 ```
 
 ## 📊 MONITORING & LOGS
@@ -209,6 +337,17 @@ npm run dashboard
 
 ## 🚀 PRODUCTION DEPLOYMENT
 
+### Render Configuration ✅
+
+**Production URL:** `https://vietqr-backend.onrender.com`
+
+**Active Endpoints:**
+
+- Token: `POST /vqr/api/token_generate`
+- QR Create: `POST /api/create`
+- QR Image: `POST /api/create-image`
+- Webhook: `POST /vqr/api/test/transaction-callback`
+
 ### Environment Variables
 
 ```bash
@@ -216,7 +355,7 @@ NODE_ENV=production
 PORT=3000
 VIETQR_CLIENT_ID=your_client_id
 VIETQR_API_KEY=your_api_key
-WEBHOOK_URL=https://yourdomain.com/bank/api/transaction-sync
+WEBHOOK_URL=https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback
 ```
 
 ### Process Management
@@ -363,6 +502,41 @@ tail -f transaction-logs.txt
 - [x] **Production Ready** - Deployment ready
 
 ---
+
+---
+
+## 🎯 QUICK REFERENCE - PRODUCTION
+
+### 🌐 Base URL
+
+```
+https://vietqr-backend.onrender.com
+```
+
+### 🔑 Key Endpoints
+
+```
+1. GET TOKEN:    POST /vqr/api/token_generate
+2. CREATE QR:    POST /api/create
+3. CALLBACK:     POST /vqr/api/test/transaction-callback
+```
+
+### 📋 Test Commands
+
+```bash
+# 1. Get Token
+curl -X POST https://vietqr-backend.onrender.com/vqr/api/token_generate
+
+# 2. Create QR
+curl -X POST https://vietqr-backend.onrender.com/api/create \
+  -H "Content-Type: application/json" \
+  -d '{"bankAccount":"0397733970","userBankName":"Nguyen Phuoc Dai","bankCode":"MB","amount":"3000","content":"VQR thanh toan test","transType":"C","orderId":"VietQR","qrType":"0"}'
+
+# 3. Test Callback
+curl -X POST https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback \
+  -H "Content-Type: application/json" \
+  -d '{"orderId":"test-123","amount":50000,"status":"success"}'
+```
 
 ## 🎉 READY FOR PRODUCTION!
 

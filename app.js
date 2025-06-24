@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 // Routes
 app.use('/vqr/api', authRoutes);  // Token generate endpoint  
-app.use('/vqr/api/test', transactionRoutes);  // Callback endpoint
+app.use('/vqr/api/', transactionRoutes);  // Callback endpoint
 app.use('/api', qrRoutes);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

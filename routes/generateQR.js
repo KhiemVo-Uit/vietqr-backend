@@ -21,26 +21,7 @@ async function getAccessToken() {
     });
     
     const token = response.data.access_token;
-    
-    // In ra token liên mạch mỗi khi lấy
-    console.log('\n🔗 TOKEN LIÊN MẠCH:');
-    console.log('🎯 Access Token:', token);
-    console.log('📏 Length:', token.length, 'chars');
-    
-    // Tách token để hiển thị cấu trúc
-    const tokenParts = token.split('.');
-    console.log('📄 Header:', tokenParts[0]);
-    console.log('📦 Payload:', tokenParts[1]);
-    console.log('🔐 Signature:', tokenParts[2]);
-    
-    // Decode payload để xem thời gian
-    try {
-      const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-      console.log('⏰ Expires:', new Date(payload.exp * 1000).toLocaleString('vi-VN'));
-    } catch (e) {
-      console.log('⏰ Expires: 5 minutes from now');
-    }
-    console.log('=' .repeat(50));
+    console.log('✅ Token generated successfully');
     
     return token;
   } catch (error) {
@@ -52,7 +33,7 @@ async function getAccessToken() {
 // Function để tạo QR code
 async function generateQRCode(token, qrData) {
   try {
-    console.log('📊 Sending data to VietQR API:', JSON.stringify(qrData, null, 2));
+    console.log('📊 Creating QR with data:', JSON.stringify(qrData, null, 2));
     
     const response = await axios.post('https://dev.vietqr.org/vqr/api/qr/generate-customer', qrData, {
       headers: {
@@ -61,12 +42,10 @@ async function generateQRCode(token, qrData) {
       }
     });
     
-    console.log('✅ VietQR API Response:', response.data);
-    return response.data;} catch (error) {
-    console.error('❌ QR Generation Error:');
-    console.error('Status:', error.response?.status);
-    console.error('Data:', error.response?.data);
-    console.error('Message:', error.message);
+    console.log('✅ QR code generated successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ QR Generation Error:', error.response?.data || error.message);
     throw new Error(`Không thể tạo QR code: ${error.response?.data?.message || error.message}`);
   }
 }
@@ -136,48 +115,6 @@ router.post('/create', async (req, res) => {
       success: true,
       message: 'QR code đã được tạo thành công',
       data: qrResult
-    });
-    
-  } catch (error) {
-    console.error('❌ Error:', error.message);
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
-
-// Route để tạo QR với thông tin mặc định (ví dụ)
-router.post('/create-sample', async (req, res) => {
-  try {
-    // Lấy access token
-    console.log('🔄 Đang lấy access token...');
-    const token = await getAccessToken();
-    console.log('✅ Access Token đã lấy thành công');
-    
-    // Dữ liệu mẫu theo format đúng của VietQR API
-    const sampleData = {
-      "amount": "79000",
-      "content": "Ung ho quy vac xin covid",
-      "bankAccount": "113366668888",
-      "bankCode": "MB",
-      "userBankName": "QUY VAC XIN COVID",
-      "transType": "C",
-      "qrType": "0"
-    };
-    
-    console.log('🔄 Đang tạo QR code mẫu...');
-    
-    // Tạo QR code
-    const qrResult = await generateQRCode(token, sampleData);
-    
-    console.log('✅ QR code mẫu đã được tạo thành công');
-    
-    res.json({
-      success: true,
-      message: 'QR code mẫu đã được tạo thành công',
-      data: qrResult,
-      sampleData: sampleData
     });
     
   } catch (error) {
@@ -300,61 +237,18 @@ router.post('/create-image', async (req, res) => {
   }
 });
 
-// Route để lấy access token
+// Route để lấy access token (simplified)
 router.get('/token', async (req, res) => {
   try {
     console.log('🔄 Đang lấy access token...');
     const token = await getAccessToken();
     console.log('✅ Access Token đã lấy thành công');
     
-    // In ra token đầy đủ trong console
-    console.log('\n📋 THÔNG TIN TOKEN ĐẦY ĐỦ:');
-    console.log('=' .repeat(80));
-    console.log('🎯 Full Token:');
-    console.log(token);
-    console.log('\n📏 Token Length:', token.length, 'characters');
-    
-    // Tách token thành các phần
-    const tokenParts = token.split('.');
-    console.log('\n🔍 TOKEN STRUCTURE:');
-    console.log('📄 Header:', tokenParts[0]);
-    console.log('📦 Payload:', tokenParts[1]);
-    console.log('🔐 Signature:', tokenParts[2]);
-    
-    // Decode header và payload
-    try {
-      const header = JSON.parse(Buffer.from(tokenParts[0], 'base64').toString());
-      const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-      
-      console.log('\n🔓 DECODED INFORMATION:');
-      console.log('📋 Header:', JSON.stringify(header, null, 2));
-      console.log('📦 Payload:', JSON.stringify(payload, null, 2));
-      
-      console.log('\n📅 TIME INFORMATION:');
-      console.log('⌚ Issued At:', new Date(payload.iat * 1000).toLocaleString('vi-VN'));
-      console.log('⏰ Expires At:', new Date(payload.exp * 1000).toLocaleString('vi-VN'));
-      console.log('⏳ Valid for:', Math.round((payload.exp - payload.iat) / 60), 'minutes');
-      
-      console.log('\n👤 USER INFORMATION:');
-      console.log('🔑 User ID:', payload.user);
-      console.log('🛡️ Authorities:', payload.authorities.join(', '));
-      console.log('=' .repeat(80));
-      
-    } catch (decodeError) {
-      console.log('❌ Không thể decode token:', decodeError.message);
-    }
-    
     res.json({
       success: true,
       message: 'Access token đã được lấy thành công',
       token: token,
-      expiresIn: '5 minutes',
-      tokenLength: token.length,
-      tokenParts: {
-        header: tokenParts[0],
-        payload: tokenParts[1],
-        signature: tokenParts[2]
-      }
+      expiresIn: '5 minutes'
     });
     
   } catch (error) {
