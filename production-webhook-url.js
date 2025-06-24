@@ -1,6 +1,6 @@
 // Production Webhook URL cho VietQR
 
-const PRODUCTION_WEBHOOK_URL = 'https://vietqr-backend.onrender.com/vqr/bank/api/test/transaction-callback';
+const PRODUCTION_WEBHOOK_URL = 'https://vietqr-backend.onrender.com/vqr/api/test/transaction-callback';
 
 console.log('🚀 PRODUCTION WEBHOOK URL FOR VIETQR');
 console.log('===================================\n');

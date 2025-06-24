@@ -24,16 +24,15 @@ async function createTokenAndQR() {
     const accessToken = tokenResponse.data.access_token;
     console.log('✅ Access Token nhận được:', accessToken);
     
-    console.log('\n🔄 Bước 2: Sử dụng token để tạo QR code...');
-    
-    // Bước 2: Sử dụng token để tạo QR code
+    console.log('\n🔄 Bước 2: Sử dụng token để tạo QR code...');      // Bước 2: Sử dụng token để tạo QR code
     const qrData = {
-      "amount": "50000",
-      "content": "Thanh toan don hang ABC123",
-      "bankAccount": "113366668888", 
+      "amount": "3000",
+      "content": "VQR thanh toan test",
+      "bankAccount": "0397733970",
       "bankCode": "MB",
-      "userBankName": "NGUYEN VAN A",
+      "userBankName": "Nguyen Phuoc Dai",
       "transType": "C",
+      "orderId": "VietQR",
       "qrType": "0"
     };
     

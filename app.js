@@ -11,10 +11,11 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-app.use('/vqr/bank/api', authRoutes);  // Token generate endpoint
-app.use('/vqr/bank/api/test', transactionRoutes);  // Callback endpoint
+app.use('/vqr/api', authRoutes);  // Token generate endpoint  
+app.use('/vqr/api/test', transactionRoutes);  // Callback endpoint
 app.use('/api', qrRoutes);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Server is running at http://localhost:${PORT}`);
+  console.log(`✅ VietQR Backend is running on port ${PORT}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
