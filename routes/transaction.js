@@ -1,12 +1,80 @@
 const express = require('express');
 const router = express.Router();
 
+// API Transaction Sync theo chuẩn VietQR
+router.post('/transaction-sync', (req, res) => {
+  console.log('\n🔐 VIETQR TRANSACTION SYNC API');
+  console.log('===============================================');
+
+  // Lấy Authorization header
+  const authHeader = req.headers['authorization'];
+  const BEARER_PREFIX = 'Bearer ';
+
+  // Kiểm tra Authorization header
+  if (!authHeader || !authHeader.startsWith(BEARER_PREFIX)) {
+    console.log('❌ Missing or invalid Authorization header');
+    return res.status(401).json({
+      error: true,
+      errorReason: "INVALID_AUTH_HEADER",
+      toastMessage: "Authorization header is missing or invalid",
+      object: null
+    });
+  }
+
+  // Extract token
+  const token = authHeader.substring(BEARER_PREFIX.length).trim();
+  console.log('🔑 Token received:', token ? token.substring(0, 20) + '...' : 'None');
+
+  // Validate token
+  if (!token || token.length < 10) {
+    console.log('❌ Invalid or expired token');
+    return res.status(401).json({
+      error: true,
+      errorReason: "INVALID_TOKEN", 
+      toastMessage: "Invalid or expired token",
+      object: null
+    });
+  }
+
+  const transactionData = req.body;
+  console.log('📋 Transaction Data:', JSON.stringify(transactionData, null, 2));
+
+  try {
+    console.log('\n💰 THÔNG TIN GIAO DỊCH:');
+    console.log('🆔 Transaction ID:', transactionData.transactionid || 'N/A');
+    console.log('💵 Amount:', transactionData.amount || 'N/A', 'VNĐ');
+    console.log('📝 Content:', transactionData.content || 'N/A');
+
+    const refTransactionId = `REF_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('🎯 Generated Ref Transaction ID:', refTransactionId);
+    console.log('✅ VietQR Transaction Sync processed successfully!');
+
+    return res.status(200).json({
+      error: false,
+      errorReason: null,
+      toastMessage: "Transaction processed successfully",
+      object: {
+        reftransactionid: refTransactionId
+      }
+    });
+
+  } catch (err) {
+    console.error('❌ Transaction processing error:', err.message);
+    return res.status(400).json({
+      error: true,
+      errorReason: "TRANSACTION_FAILED",
+      toastMessage: err.message,
+      object: null
+    });
+  }
+});
+
 // Endpoint callback cho VietQR (CÓ TOKEN) - PRODUCTION
 router.post('/transaction-callback', (req, res) => {
   // Kiểm tra token trong header
   const authHeader = req.headers['authorization'];
   const token = req.headers['x-api-key'] || req.query.token || req.body.token;
-  
+
   console.log('\n🔐 CHECKING CALLBACK AUTHENTICATION...');
   console.log('Authorization Header:', authHeader);
   console.log('X-API-Key:', req.headers['x-api-key']);
@@ -50,7 +118,7 @@ router.post('/transaction-callback', (req, res) => {
 
     // Log thành công
     console.log('✅ VietQR Webhook processed successfully with token!');
-    
+
     return res.status(200).json({
       success: true,
       message: "Webhook received successfully with authentication",
